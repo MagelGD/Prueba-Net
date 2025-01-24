@@ -1,0 +1,87 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudText Typo="Typo.h5" Class="ml-3">Nombre Proyecto</MudText>
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" OnClick="@((e) => MoreDrawerToggle())" />
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6">Menú</MudText>
+        </MudDrawerHeader>
+        <NavMenu />
+    </MudDrawer>
+
+    <MudDrawer @bind-Open="_moreDrawerOpen" Anchor="Anchor.End" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6">Más Opciones</MudText>
+        </MudDrawerHeader>
+
+        <MudNavMenu>
+            <MudNavLink onclick="(()=> Logout())" Match="NavLinkMatch.Prefix">Cerrar Sesion</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="my-4 pt-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+    <MudPopoverProvider />
+</MudLayout>
+
+
+@code {
+    bool _drawerOpen = false;
+    bool _moreDrawerOpen = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+        try
+        {
+            if (!(await localStorage.ContainKeyAsync("authToken")))
+            {
+                Navigation.NavigateTo("/login");
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+
+    private async Task Logout()
+    {
+        try
+        {
+            await sessionStorage.ClearAsync();
+            await localStorage.ClearAsync();
+            _Isnackbar.Add("Sesión cerrada exitosamente", Severity.Info);
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
+    }
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    void MoreDrawerToggle()
+    {
+        _moreDrawerOpen = !_moreDrawerOpen;
+    }
+}

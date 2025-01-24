@@ -1,0 +1,30 @@
+﻿@using MudBlazor
+@using System.Reflection
+@inherits LayoutComponentBase
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.Large">
+            @Body
+        </MudContainer>
+        @*   <MudPaper Class="d-flex align-self-end align-content-center justify-center flex-grow-1 gap-4">
+            <strong> <MudText Typo="Typo.body1">@version © @DateTime.Now.Year Copyright Expert Medica S.A.S.</MudText></strong>
+        </MudPaper> *@
+    </MudMainContent>
+</MudLayout>
+
+
+@code {
+    bool _drawerOpen = true;
+    private string version = System.Reflection.Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+
+}

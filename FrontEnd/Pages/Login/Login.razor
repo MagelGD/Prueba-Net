@@ -1,0 +1,51 @@
+﻿@page "/Login"
+@using Blazored.LocalStorage
+@layout SimpleLayout
+@inject NavigationManager Navigation
+
+
+<!-- Cargador de la PWA (Mostrar mientras se carga) -->
+@if (isLoading)
+{
+    <MudContainer Class="loading-container">
+        <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />
+    </MudContainer>
+}
+else
+{
+    <!-- Formulario de Login con fondo blanco -->
+    <MudContainer MaxWidth="MaxWidth.Small" Class="login-container">
+        <MudText Typo="Typo.h4" Class="form-title" Align="Align.Center" GutterBottom="true">
+            Iniciar sesión
+        </MudText>
+
+        <MudForm @ref="form" ValidationDelay="0">
+            <MudTextField T="string" @bind-Value="Nombre" Required="true" RequiredError="Requerido*" Class="input" Label="Usuario" Placeholder="Ingresar Usuario" FullWidth="true" Margin="Margin.Normal" />
+            <MudTextField T="string" @bind-Value="Correo" Required="true" RequiredError="Requerido*" Class="input" Label="Correo" Placeholder="Ingresar Correo"  FullWidth="true" Margin="Margin.Normal" />
+
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" FullWidth="true" OnClick="Authenticacion" Class="submit-btn">
+                Iniciar
+            </MudButton>
+        </MudForm>
+       <MudItem></MudItem>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" FullWidth="true" OnClick="Registrarse" Class="submit-btn top-20">
+            Registrarse
+        </MudButton>
+        <MudAlert Severity="Severity.Error" hidden="@IsError">Usuario y/o Contraseña incorrecta</MudAlert>
+        <MudGrid Justify="Justify.Center" Class="social-icons">
+            <MudItem>
+                <MudIconButton Icon="fab fa-facebook" Color="Color.Primary" Class="social-icon" />
+            </MudItem>
+            <MudItem>
+                <MudIconButton Icon="fab fa-google" Color="Color.Secondary" Class="social-icon" />
+            </MudItem>
+            <MudItem>
+                <MudIconButton Icon="fab fa-twitter" Color="Color.Info" Class="social-icon" />
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+}
+
+@code {
+
+}

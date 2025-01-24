@@ -1,0 +1,162 @@
+﻿@using MudBlazor;
+@using M = Models.Models;
+
+
+<MudDialog Class="">
+    <DialogContent>
+
+        <MudForm @ref="form" ValidationDelay="0">
+            <MudGrid>
+                <MudItem xs="12" md="4" lg="3">
+                    <MudTextField @bind-Value="@Tarea.Titulo"
+                    Label="Titulo"
+                    Margin="Margin.Dense"
+                    Variant="Variant.Outlined"
+                    Required="true"
+                    RequiredError="Requerido*" />
+                </MudItem>
+                <MudItem xs="12" md="4" lg="3">
+                    <MudTextField @bind-Value="@Tarea.Descripcion"
+                    Label="Descripcion"
+                    Margin="Margin.Dense"
+                    Variant="Variant.Outlined"
+                    Required="true"
+                    RequiredError="Requerido*" />
+                </MudItem>
+                <MudItem xs="12" md="4" lg="3">
+                    <MudDatePicker Label="Fecha Vencimiento" Editable="true" @bind-Date="_date" Placeholder="Seleccionar Fecha" />
+
+                </MudItem>
+                <MudItem xs="12" md="4" lg="3">
+                    <MudSelect Placeholder="Seleccionar Estado" @bind-Value="EstadoTarea" HelperText="Estado Tarea" CloseIcon="@Icons.Material.Filled.Flag" AdornmentColor="Color.Tertiary">
+                        <MudSelectItem Value="@("Pendiente")" />
+                        <MudSelectItem Value="@("En Progreso")" />
+                        <MudSelectItem Value="@("Completada")" />
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="4" lg="3">
+                    <MudCheckBox T="bool" Label="ESTADO" @bind-Checked="@Estado" Value="@Estado" @onclick="CambiarEstado" Color="Color.Primary" Dense="true"></MudCheckBox>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+
+    </DialogContent>
+    <DialogActions>
+
+        <MudButton Color="Color.Default" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Cancel" OnClick="Cancel" Class="d-flex justify-content-start">Cancelar</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Save" hidden="@Guardar" OnClick="GuardarTarea" Class="d-flex justify-content-start">Guardar</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Update" hidden="@Actualizar" OnClick="ActualizarTarea" Class="d-flex justify-content-start">Guardar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public IEnumerable<M.Tarea> ListTarea { get; set; }
+    [Parameter] public M.Tarea EditTarea { get; set; }
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+    void Cancel() => MudDialog.Cancel();
+    MudForm form;
+    private bool Estado { get; set; } = false;
+    private M.Tarea Tarea { get; set; } = new();
+    private string EstadoTarea { get; set; }
+    [Inject] IConexionApi<M.Tarea, M.Tarea> IconexionApiTare { get; set; }
+    private bool Guardar { get; set; } = false;
+    private bool Actualizar { get; set; } = false;
+    private DateTime? _date;
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (EditTarea != null)
+            {
+                Tarea = EditTarea;
+                Guardar = true;
+                EstadoTarea = Tarea.EstadoTarea;
+                _date = Tarea.FechaVencimiento;
+                Estado = Tarea.Estado;
+            }
+            else
+            {
+                Actualizar = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
+    private async Task GuardarTarea()
+    {
+        try
+        {
+            await form.Validate();
+            if (form.IsValid)
+            {
+                await _ContenedorUsuario.ObtenerUsuario();
+                Tarea.FechaCreacion = DateTime.Now;
+                Tarea.FechaVencimiento = Convert.ToDateTime(_date);
+                Tarea.EstadoTarea = EstadoTarea;
+                Tarea.IdUsuario = _ContenedorUsuario.usuario.IdUsuario;
+                var datos = await IconexionApiTare.Post($"Tarea/GuardarTarea", Tarea);
+                if (datos.IdTarea != 0)
+                {
+                    _Isnackbar.Add("Se agrega tarea correctamente", Severity.Success);
+                    MudDialog.Close();
+                }
+                else
+                {
+                    _Isnackbar.Add("No se agrega tarea correctamente", Severity.Error);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
+    }
+
+    private async Task ActualizarTarea()
+    {
+        try
+        {
+            await form.Validate();
+            if (form.IsValid)
+            {
+                await _ContenedorUsuario.ObtenerUsuario();
+                Tarea.FechaModificacion = DateTime.Now;
+                Tarea.EstadoTarea = EstadoTarea;
+                Tarea.FechaVencimiento = Convert.ToDateTime(_date);
+                Tarea.IdUsuario = _ContenedorUsuario.usuario.IdUsuario;
+                var datos = await IconexionApiTare.Post($"Tarea/ActualizarTarea", Tarea);
+                if (datos.IdTarea != 0)
+                {
+                    _Isnackbar.Add("Se actualiza tarea correctamente", Severity.Success);
+                    MudDialog.Close();
+                }
+                else
+                {
+                    _Isnackbar.Add("No se actualiza tarea correctamente", Severity.Error);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
+    private async Task CambiarEstado()
+    {
+        try
+        {
+            Tarea.Estado = Estado ? false : true;
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+}

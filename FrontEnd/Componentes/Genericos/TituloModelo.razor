@@ -1,0 +1,30 @@
+﻿@using MudBlazor
+<MudGrid AlignItems="AlignItems.left" Justify="Justify.FlexStart">
+    <MudItem xs="12" sm="4">
+        <MudText Typo="Typo.h4">@Titulo</MudText>
+    </MudItem>
+</MudGrid>
+
+@if (!string.IsNullOrEmpty(BotonCrear))
+{
+    <MudGrid>
+        <MudItem xs="12">
+            <MudButton Href="@Navegacion" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" Size="Size.Medium" Class="d-flex justify-end">
+                @BotonCrear
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+    <br />
+}
+
+@code {
+
+    [Parameter]
+    public string? Titulo { get; set; }
+
+    [Parameter]
+    public string? BotonCrear { get; set; }
+
+    [Parameter]
+    public string? Navegacion { get; set; }
+}
